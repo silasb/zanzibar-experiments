@@ -175,10 +175,22 @@ assert? enumerate('users', '333').all? do |t|
   check?('users', '333', relation, object_namespace, object)
 end
 
-
-
 assert_eq? simulate_enumerate('users', '331', 'owner', 'org', '4'), ['member@org:4', 'owner@org:4', 'owner@dir:1', 'owner@file:1']
 
-$db.query('select distinct subject from tuples where subject_namespace = ?', 'users').each do |tuples|
-  p tuples['subject'] => enumerate('users', tuples['subject'])
+report = ARGV.any? { _1 == '--report' }
+if report
+  require 'csv'
+  relations = $db.query('select relation || "@" || object_namespace as t from tuples').flat_map(&:values).uniq
+  csv_report = CSV.generate do |csv|
+    csv << ['user_id', *relations]
+
+    $db.query('select distinct subject from tuples where subject_namespace = ?', 'users').each do |tuples|
+      enumerations = enumerate('users', tuples['subject']).map { _1.split(':').first }
+      csv << relations
+        .map { enumerations.include? _1 }
+        .unshift(tuples['subject'])
+    end
+  end
+
+  puts csv_report
 end
