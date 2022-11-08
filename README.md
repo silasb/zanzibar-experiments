@@ -10,6 +10,8 @@ ruby main.rb
 ```
 
 Use `--report` flag to include a CSV report at the end of the run
+![image](https://user-images.githubusercontent.com/40670/200466330-46336fd4-af3e-40b2-8147-dfb614f8dfa0.png)
+
 
 Related projects/services
 
